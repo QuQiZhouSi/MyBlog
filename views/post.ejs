@@ -1,33 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Post</title>
+    <title>文章</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.0/katex.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.0/katex.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/12.0.4/markdown-it.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.0/themes/prism-tomorrow.min.css">
 </head>
 <body>
-    <!-- ?? div ??示解析后的 Markdown 和 LaTeX ?容 -->
-    <div id="content"><%= content %></div>
+    <div id="content">
+        <%- content %> <!-- 直接渲染 HTML,不?行?? -->
+    </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.0/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.0/prism.min.js"></script>
     <script>
-        // 使用 markdown-it 渲染????的 Markdown ?容
-        const md = window.markdownit();
-
-        // ?取??的 Markdown ?容
-        const markdownContent = document.getElementById('content').innerHTML;
-
-        // 渲染 Markdown ? HTML
-        document.getElementById('content').innerHTML = md.render(markdownContent);
-
-        // ?理 LaTeX 公式渲染
-        document.querySelectorAll('script[type^="math/tex"]').forEach((el) => {
-            const display = el.type.includes('mode=display');
-            const math = el.textContent || el.innerText;
-            katex.render(math, el, { displayMode: display });
-        });
+        Prism.highlightAll(); // ?用代?高亮
     </script>
 </body>
 </html>
