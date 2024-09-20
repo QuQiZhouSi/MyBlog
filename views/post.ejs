@@ -9,12 +9,25 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/12.0.4/markdown-it.min.js"></script>
 </head>
 <body>
+    <!-- ?? div ??示解析后的 Markdown 和 LaTeX ?容 -->
     <div id="content"><%= content %></div>
+
     <script>
-        document.querySelectorAll('script[type^="math/tex"]').forEach((el) =>{
+        // 使用 markdown-it 渲染????的 Markdown ?容
+        const md = window.markdownit();
+
+        // ?取??的 Markdown ?容
+        const markdownContent = document.getElementById('content').innerHTML;
+
+        // 渲染 Markdown ? HTML
+        document.getElementById('content').innerHTML = md.render(markdownContent);
+
+        // ?理 LaTeX 公式渲染
+        document.querySelectorAll('script[type^="math/tex"]').forEach((el) => {
             const display = el.type.includes('mode=display');
             const math = el.textContent || el.innerText;
             katex.render(math, el, { displayMode: display });
         });
     </script>
 </body>
+</html>
