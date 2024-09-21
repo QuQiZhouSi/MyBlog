@@ -1,21 +1,52 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>�峹</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.0/katex.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.0/themes/prism-tomorrow.min.css">
+    <title><%= title %> - 博客平台</title>
+    <!-- 引入 KaTeX 样式 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+    <!-- 引入 Prism.js 样式 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism-tomorrow.css">
+    <style>
+        .post-content img {
+            max-width: 80%;
+            height: auto;
+            display: block;
+            margin: 20px auto;
+        }   
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center; /* 将所有内容居中 */
+            margin: 0;
+            padding: 0;
+            /* 添加背景图片 */
+            background-image: url('/images/background.jpg'); /* 替换为您的背景图片路径 */
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto; /* 增加顶部和底部间距 */
+            text-align: left; /* 保持内容的左对齐以提高可读性 */
+            background-color: rgba(255, 255, 255, 0.9); /* 半透明白色背景 */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* 添加阴影 */
+        }
+        /* 其他样式保持不变 */
+        /* 代码块样式 */
+        /* ... */
+    </style>
 </head>
 <body>
-    <div id="content">
-        <%- content %> <!-- ������V HTML,��?��?? -->
+    <div class="container">
+        <h1><%= title %></h1>
+        <div class="post-content">
+            <%- content %>
+        </div>
+        <p><a href="/">返回首页</a></p>
     </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.0/katex.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.0/prism.min.js"></script>
-    <script>
-        Prism.highlightAll(); // ?�ΥN?���G
-    </script>
 </body>
 </html>

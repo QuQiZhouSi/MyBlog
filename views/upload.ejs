@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>上传文章</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center; /* 将所有内容居中 */
+            margin: 0;
+            padding: 0;
+            /* 添加背景图片 */
+            background-image: url('/images/background.jpg'); /* 替换为您的背景图片路径 */
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto; /* 增加顶部和底部间距 */
+            background-color: rgba(255, 255, 255, 0.9); /* 半透明白色背景 */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        form {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>上传文章</h1>
+        <form action="/upload" method="post" enctype="multipart/form-data">
+            <input type="file" name="markdownFile" accept=".md" />
+            <button type="submit">上传</button>
+        </form>
+        <p><a href="/">返回首页</a></p>
+    </div>
+</body>
+</html>

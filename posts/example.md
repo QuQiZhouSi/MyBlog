@@ -1,3 +1,8 @@
+---
+title: "114514"
+summary: "cnmcnmcnmcnmcnmc"
+---
+
 # Sublime 和 VS code 的配置
 
 * 本篇文章為基礎設置,沒有任何高級的設置

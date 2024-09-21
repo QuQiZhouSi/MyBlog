@@ -1,82 +1,151 @@
+// app.js
+
 import express from 'express';
-import fs from 'fs';
+import multer from 'multer';
 import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
-import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
+import remarkGfm from 'remark-gfm';
 import remarkRehype from 'remark-rehype';
-import rehypeStringify from 'rehype-stringify';
-import rehypeSanitize from 'rehype-sanitize';
-import rehypeKatex from 'rehype-katex';
-import rehypePrism from 'rehype-prism-plus';
+import rehypeRaw from 'rehype-raw';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
-import rehypeRaw from 'rehype-raw';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import rehypeKatex from 'rehype-katex';
+import rehypePrism from 'rehype-prism-plus';
+import rehypeStringify from 'rehype-stringify';
+import matter from 'gray-matter';
 
-// 解析当前文件目录
+// 导入自定义插件
+import rehypePluginLineNumbers from './rehype-plugin-line-numbers.js';
+
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = 3000;
 
-// 设置 EJS 作为模板引擎
+// 配置 Multer 用于文件上传
+const upload = multer({ dest: 'uploads/' });
+
+// 设置 EJS 视图引擎
 app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
-// 设置静态文件目录,例如用于加载 CSS 和 JS 文件
-app.use(express.static(path.join(__dirname, 'public')));
+// 静态文件服务
+app.use(express.static('public'));
 
-// 首页路由
+// 解析 POST 请求中的表单数据
+app.use(express.urlencoded({ extended: false }));
+
+// 背景图片
+app.use(express.static('public'));
+
+// 检查并创建 uploads 和 posts 文件夹
+const uploadsDir = path.join(__dirname, 'uploads');
+const postsDir = path.join(__dirname, 'posts');
+
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+}
+
+if (!fs.existsSync(postsDir)) {
+  fs.mkdirSync(postsDir);
+}
+
+// 上传页面
+app.get('/upload', (req, res) => {
+  res.render('upload');
+});
+
+// 上传 Markdown 博客的路由
+app.post('/upload', upload.single('markdownFile'), (req, res) => {
+  const { originalname, filename } = req.file;
+  const filePath = path.join(uploadsDir, filename);
+  const newFilePath = path.join(postsDir, originalname);
+
+  // 移动文件到 posts 文件夹
+  fs.renameSync(filePath, newFilePath);
+  res.redirect('/');
+});
+
+// 查看单个博客
+app.get('/post/:title', (req, res) => {
+  const postTitle = req.params.title;
+  const decodedTitle = decodeURIComponent(postTitle);
+  const filePath = path.join(postsDir, `${decodedTitle}.md`);
+
+  fs.readFile(filePath, 'utf-8', (err, data) => {
+    if (err) {
+      console.error('读取文章失败:', err);
+      return res.status(404).send('文章未找到');
+    }
+
+    const { content, data: frontmatter } = matter(data);
+
+    unified()
+      .use(remarkParse)
+      .use(remarkGfm)
+      .use(remarkMath)
+      .use(remarkRehype, { allowDangerousHtml: true })
+      .use(rehypeRaw)
+      .use(rehypeSlug)
+      .use(rehypeAutolinkHeadings)
+      .use(rehypeKatex)
+      .use(rehypePrism)
+      .use(rehypePluginLineNumbers) // 使用自定义插件
+      .use(rehypeStringify)
+      .process(content)
+      .then((file) => {
+        res.render('post', {
+          title: frontmatter.title || decodedTitle,
+          content: String(file),
+        });
+      })
+      .catch((error) => {
+        console.error('处理 Markdown 文件时出错:', error);
+        res.status(500).send('服务器内部错误');
+      });
+  });
+});
+
+// 首页
 app.get('/', (req, res) => {
-    res.render('index', { title: '我的博客' });
-});
+  // 读取 posts 目录下的所有文件
+  fs.readdir(postsDir, (err, files) => {
+    if (err) {
+      console.error('读取 posts 目录失败:', err);
+      return res.status(500).send('服务器错误');
+    }
 
-// 博客页面路由
-app.get('/blog', (req, res) => {
-    res.send('歡迎來到博客頁面');
-});
+    const articles = [];
 
-// 读取并渲染 Markdown 文件
-app.get('/post/:filename', async (req, res) => {
-    const fileName = req.params.filename;
-    const filePath = path.join(__dirname, 'posts', `${fileName}.md`);
+    files.forEach((filename) => {
+      // 仅处理 .md 文件
+      if (path.extname(filename) === '.md') {
+        const filePath = path.join(postsDir, filename);
+        const fileContent = fs.readFileSync(filePath, 'utf8');
 
-    // 确保使用 utf-8 编码读取文件
-    fs.readFile(filePath, 'utf-8', async (err, data) => {
-        if (err) {
-            console.error('读取文件时出错:', err);
-            return res.status(404).send('找不到文章');
-        }
+        // 使用 gray-matter 解析前置内容
+        const { data } = matter(fileContent);
 
-        try {
-            // 使用 unified 解析并渲染 Markdown
-            const result = await unified()
-                .use(remarkParse)  // 解析 Markdown
-                .use(remarkGfm)  // 支持 GitHub 风格 Markdown
-                .use(remarkMath)  // 支持数学公式
-                .use(remarkRehype, { allowDangerousHtml: true })  // 转换为 HTML
-                .use(rehypeRaw)  // 支持内嵌 HTML
-                .use(rehypeKatex)  // 渲染数学公式
-                .use(rehypePrism)  // 代码高亮
-                .use(rehypeSlug)  // 给标题添加 ID
-                .use(rehypeAutolinkHeadings, { behavior: 'wrap' })  // 给标题添加超链接
-                .use(rehypeSanitize)  // 安全过滤
-                .use(rehypeStringify)  // 输出 HTML
-                .process(data);
-
-            // 渲染 HTML 到模板
-            res.render('post', { content: result.contents });
-        } catch (err) {
-            console.error('处理 Markdown 文件时出错:', err);
-            res.status(500).send('处理 Markdown 文件时出错');
-        }
+        // 确保数据存在
+        articles.push({
+          filename: path.parse(filename).name, // 获取不带扩展名的文件名
+          title: data.title || '无标题',
+          summary: data.summary || '暂无摘要',
+        });
+      }
     });
+
+    // 将文章列表传递给模板进行渲染
+    res.render('index', { articles });
+  });
 });
 
 // 启动服务器
 app.listen(PORT, () => {
-    console.log(`服务器正在 http://localhost:${PORT} 运行`);
+  console.log(`服务器正在 http://localhost:${PORT} 运行`);
 });
