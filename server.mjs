@@ -135,6 +135,7 @@ app.get('/', (req, res) => {
     }
 
     const articles = [];
+    let personalArticle = null;
 
     files.forEach((filename) => {
       // 仅处理 .md 文件
@@ -145,19 +146,31 @@ app.get('/', (req, res) => {
         // 使用 gray-matter 解析前置内容
         const { data } = matter(fileContent);
 
-        // 确保数据存在
-        articles.push({
+        const article = {
           filename: path.parse(filename).name, // 获取不带扩展名的文件名
           title: data.title || '无标题',
           summary: data.summary || '暂无摘要',
-        });
+        };
+
+        // 检查是否为 personal.md,若是则保存
+        if (filename === 'personal.md') {
+          personalArticle = article;
+        } else {
+          articles.push(article);
+        }
       }
     });
+
+    // 如果 personal.md 存在,将其放在数组的最前面
+    if (personalArticle) {
+      articles.unshift(personalArticle);
+    }
 
     // 将文章列表传递给模板进行渲染
     res.render('index', { articles });
   });
 });
+
 
 // 启动服务器
 app.listen(PORT, () => {
