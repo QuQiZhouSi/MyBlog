@@ -1,13 +1,13 @@
+<!-- views/tag_articles.ejs -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <title>上传文章</title>
     <link rel="icon" type="image/png" href="/images/favicon.png">
+    <meta charset="UTF-8">
+    <%- include('header') %>
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
             margin: 0;
             padding: 0;
             background-image: url('/images/background.jpg');
@@ -15,6 +15,7 @@
             background-position: center center;
             background-repeat: no-repeat;
             background-attachment: fixed;
+            text-align: center; /* 内容居中 */
         }
         .container {
             max-width: 800px;
@@ -24,21 +25,19 @@
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
-        form {
-            margin-top: 20px;
-        }
     </style>
 </head>
 <body>
-    
-    
     <div class="container">
-        <h1>上传文章</h1>
-        <form action="/upload" method="post" enctype="multipart/form-data">
-            <input type="file" name="markdownFile" accept=".md" />
-            <button type="submit">上传</button>
-        </form>
-        <p><a href="/">返回首页</a></p>
+        <h2>标签 "<%= tag %>" 的文章列表</h2>
+        <ul>
+            <% results.forEach(function(result) { %>
+                <li>
+                    <a href="/post/<%= result.filename %>"><%= result.title %></a>
+                    <p>作者: <a href="/author/<%= result.author %>"><%= result.author %></a></p>
+                </li>
+            <% }); %>
+        </ul>
     </div>
 </body>
 </html>

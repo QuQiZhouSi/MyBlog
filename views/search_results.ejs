@@ -1,0 +1,52 @@
+<!-- views/search_results.ejs -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <link rel="icon" type="image/png" href="/images/favicon.png">
+    <meta charset="UTF-8">
+    <%- include('header') %>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('/images/background.jpg');
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            text-align: center; /* 内容居中 */
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>搜索结果: "<%= query %>"</h2>
+        <ul>
+            <% results.forEach(function(result) { %>
+                <li>
+                    <a href="/post/<%= result.filename %>"><%= result.title %></a>
+                    <p>作者: <a href="/author/<%= result.author %>"><%= result.author ? result.author : '作者未署名' %></a></p>
+                    <p>标签: 
+                        <% if (result.tags.length > 0) { %>
+                            <% result.tags.forEach(function(tag) { %>
+                                <a href="/tag/<%= tag %>"><%= tag %></a>
+                            <% }); %>
+                        <% } else { %>
+                            暂无标签
+                        <% } %>
+                    </p>
+                </li>
+            <% }); %>
+        </ul>
+    </div>
+</body>
+</html>

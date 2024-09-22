@@ -2,7 +2,7 @@
 title: "题解:AT_abc219_f [ABC219F] Cleaning Robot"
 summary: "这是AT_abc219_f [ABC219F] Cleaning Robot的题解,转自我的洛谷专栏,这是原题链接: https://www.luogu.com.cn/problem/solution/AT_abc219_f 这是原帖连接:https://www.luogu.com.cn/article/zfcekavw"
 author: "曲奇丶宙斯"
-tag: "C++ 题解 AtCoder"
+tag: ["C++","题解","AtCoder"]
 ---
 
 [题目链接](https://www.luogu.com.cn/problem/solution/AT_abc219_f)

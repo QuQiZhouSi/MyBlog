@@ -2,7 +2,7 @@
 title: "114514"
 summary: "cnmcnmcnmcnmcnmc"
 author: "ewe"
-tag: "测试"
+tag: ["测试","C++"]
 ---
 
 # Sublime 和 VS code 的配置

@@ -1,25 +1,24 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+    <%- include('header') %>
     <meta charset="UTF-8">
     <title>博客主页</title>
-    <!-- 设置浏览器标签页的favicon图标 -->
-    <link rel="icon" type="image/png" href="/images/favicon.png"> <!-- 替换为您favicon图片的路径 -->
+    <link rel="icon" type="image/png" href="/images/favicon.png">
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-image: url('/images/background.jpg'); /* 替换为全局背景图片路径 */
+            background-image: url('/images/background.jpg');
             background-size: cover;
             background-position: center center;
             background-repeat: no-repeat;
             background-attachment: fixed;
         }
 
-        /* 顶部背景图片区域 */
         .header {
-            background-image: url('/images/your-header-background.jpg'); /* 替换为顶部背景图片路径 */
+            background-image: url('/images/your-header-background.jpg');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -32,15 +31,14 @@
             text-align: center;
         }
 
-        /* logo 样式 */
         .logo {
             position: absolute;
-            top: 20px; /* 调整logo在顶部的位置 */
-            left: 20px; /* 调整logo在左侧的位置 */
+            top: 20px;
+            left: 20px;
         }
 
         .logo img {
-            max-width: 100px; /* 控制logo的宽度 */
+            max-width: 100px;
             height: auto;
         }
 
@@ -91,16 +89,27 @@
         .article-list a:hover {
             text-decoration: underline;
         }
+
+        .search-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+        }
+
+        .search-bar {
+            padding: 10px;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
 
-    <!-- 顶部背景图片区域 -->
     <div class="header">
         <h1>欢迎来到曲奇丶宙斯の小屋</h1>
     </div>
 
-    <!-- 下方内容区域 -->
     <div class="container">
         <h2>文章列表</h2>
         <ul class="article-list">
@@ -112,7 +121,6 @@
                     <p class="article-author"><%= article.author %></p>
                     <p class="article-summary"><%= article.summary %></p>
                     <p class="article-tag"><%= article.tag %></p>
-                    
                 </li>
             <% }); %>
         </ul>

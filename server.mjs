@@ -119,13 +119,21 @@ app.get('/post/:title', (req, res) => {
 
     const { content, data: frontmatter } = matter(data);
 
+    // 保留 Markdown 渲染逻辑,保持与原有功能一致
     let headings = [];
+    let tags = frontmatter.tag;
+    let tagError = false;
+
+    // 确保 tags 为数组,避免错误
+    if (!Array.isArray(tags)) {
+      tags = []; // 默认设置为空数组
+      tagError = true; // 设置标签格式错误标记
+    }
 
     unified()
       .use(remarkParse)
       .use(remarkGfm)
       .use(remarkMath)
-      // 收集标题信息
       .use(() => (tree) => {
         visit(tree, 'heading', (node) => {
           const text = node.children
@@ -144,15 +152,17 @@ app.get('/post/:title', (req, res) => {
       .use(rehypeAutolinkHeadings)
       .use(rehypeKatex)
       .use(rehypePrism)
-      .use(rehypePluginLineNumbers) // 使用自定义插件添加行号
+      .use(rehypePluginLineNumbers) // 保留行号功能
       .use(rehypeStringify)
-      .use(remarkParse)
       .process(content)
       .then((file) => {
         res.render('post', {
           title: frontmatter.title || decodedTitle,
-          content: String(file),
-          headings: headings, // 将标题信息传递给模板
+          author: frontmatter.author || '作者未署名',  // 默认作者
+          tags: tags,                                 // 正常的标签
+          tagError: tagError,                         // 标记标签错误
+          content: String(file),                      // 渲染后的文章内容
+          headings: headings                          // 保留原有功能
         });
       })
       .catch((error) => {
@@ -162,9 +172,80 @@ app.get('/post/:title', (req, res) => {
   });
 });
 
+// 标签页
+app.get('/tag/:tag', (req, res) => {
+  const tagQuery = req.params.tag.toLowerCase();
+
+  fs.readdir(postsDir, (err, files) => {
+    if (err) {
+      console.error('读取 posts 目录失败:', err);
+      return res.status(500).send('服务器错误');
+    }
+
+    const results = [];
+
+    files.forEach((filename) => {
+      if (path.extname(filename).toLowerCase() === '.md') {
+        const filePath = path.join(postsDir, filename);
+        const fileContent = fs.readFileSync(filePath, 'utf8');
+        const { data } = matter(fileContent);
+
+        const tags = Array.isArray(data.tag) ? data.tag : [];
+        if (tags.some(tag => tag.toLowerCase() === tagQuery)) {
+          results.push({
+            filename: path.parse(filename).name,
+            title: data.title,
+            author: data.author,
+            tags: tags
+          });
+        }
+      }
+    });
+
+    res.render('tag_results', { tag: tagQuery, results });
+  });
+});
+
+// 作者页
+app.get('/author/:author', (req, res) => {
+  const authorQuery = req.params.author.toLowerCase();
+
+  fs.readdir(postsDir, (err, files) => {
+    if (err) {
+      console.error('读取 posts 目录失败:', err);
+      return res.status(500).send('服务器错误');
+    }
+
+    const results = [];
+
+    files.forEach((filename) => {
+      if (path.extname(filename).toLowerCase() === '.md') {
+        const filePath = path.join(postsDir, filename);
+        const fileContent = fs.readFileSync(filePath, 'utf8');
+        const { data } = matter(fileContent);
+
+        if (data.author && data.author.toLowerCase() === authorQuery) {
+          results.push({
+            filename: path.parse(filename).name,
+            title: data.title,
+            tags: data.tag || []
+          });
+        }
+      }
+    });
+
+    res.render('author_results', { author: authorQuery, results });
+  });
+});
+
+
+
+
+// 首页
+// app.js
+
 // 首页
 app.get('/', (req, res) => {
-  // 读取 posts 目录下的所有文件
   fs.readdir(postsDir, (err, files) => {
     if (err) {
       console.error('读取 posts 目录失败:', err);
@@ -172,41 +253,88 @@ app.get('/', (req, res) => {
     }
 
     const articles = [];
-    let personalArticle = null;
+    let topArticles = {
+      personal: null,
+      upload: null,
+      markdownlanguage: null,
+      rule: null,
+    };
 
     files.forEach((filename) => {
-      // 仅处理 .md 文件
-      if (path.extname(filename) === '.md') {
+      if (path.extname(filename).toLowerCase() === '.md') {
         const filePath = path.join(postsDir, filename);
         const fileContent = fs.readFileSync(filePath, 'utf8');
-
-        // 使用 gray-matter 解析前置内容
         const { data } = matter(fileContent);
 
         const article = {
-          filename: path.parse(filename).name, // 获取不带扩展名的文件名
+          filename: path.parse(filename).name,
           title: data.title || '无标题',
           summary: data.summary || '暂无摘要',
           author: data.author || '作者未署名',
-          tag: data.tag || '',
+          tags: data.tag || [], // 获取标签
+          mtime: fs.statSync(filePath).mtime
         };
 
-        // 检查是否为 personal.md,若是则保存
-        if (filename === 'personal.md') {
-          personalArticle = article;
-        } else {
-          articles.push(article);
+        const lowerFilename = filename.toLowerCase();
+        if (lowerFilename === 'personal.md') topArticles.personal = article;
+        else if (lowerFilename === 'upload.md') topArticles.upload = article;
+        else if (lowerFilename === 'markdownlanguage.md') topArticles.markdownlanguage = article;
+        else if (lowerFilename === 'rule.md') topArticles.rule = article;
+        else articles.push(article);
+      }
+    });
+
+    articles.sort((a, b) => b.mtime - a.mtime);
+
+    // 置顶文章
+    if (topArticles.rule) articles.unshift(topArticles.rule);
+    if (topArticles.markdownlanguage) articles.unshift(topArticles.markdownlanguage);
+    if (topArticles.upload) articles.unshift(topArticles.upload);
+    if (topArticles.personal) articles.unshift(topArticles.personal);
+
+    res.render('index', { articles });
+  });
+});
+
+// 搜索功能
+app.get('/search', (req, res) => {
+  const query = req.query.q.toLowerCase();
+
+  fs.readdir(postsDir, (err, files) => {
+    if (err) {
+      console.error('读取 posts 目录失败:', err);
+      return res.status(500).send('服务器错误');
+    }
+
+    const results = [];
+
+    files.forEach((filename) => {
+      if (path.extname(filename).toLowerCase() === '.md') {
+        const filePath = path.join(postsDir, filename);
+        const fileContent = fs.readFileSync(filePath, 'utf8');
+        const { data } = matter(fileContent);
+
+        // 确保 tags 是数组,避免 .some 出错
+        const tags = Array.isArray(data.tag) ? data.tag : [];
+
+        // 搜索标题、作者或标签
+        const isMatch = (data.title && data.title.toLowerCase().includes(query)) ||
+                        (data.author && data.author.toLowerCase().includes(query)) ||
+                        (tags.some(tag => tag.toLowerCase().includes(query)));
+
+        if (isMatch) {
+          results.push({
+            filename: path.parse(filename).name,
+            title: data.title,
+            author: data.author,
+            tags: tags,
+            summary: data.summary || '暂无摘要'
+          });
         }
       }
     });
 
-    // 如果 personal.md 存在,将其放在数组的最前面
-    if (personalArticle) {
-      articles.unshift(personalArticle);
-    }
-
-    // 将文章列表传递给模板进行渲染
-    res.render('index', { articles });
+    res.render('search_results', { query, results });
   });
 });
 
