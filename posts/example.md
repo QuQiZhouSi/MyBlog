@@ -1,6 +1,8 @@
 ---
 title: "114514"
 summary: "cnmcnmcnmcnmcnmc"
+author: "ewe"
+tag: "测试"
 ---
 
 # Sublime 和 VS code 的配置

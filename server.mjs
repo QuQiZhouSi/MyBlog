@@ -22,6 +22,42 @@ import { visit } from 'unist-util-visit';
 // 导入自定义插件
 import rehypePluginLineNumbers from './rehype-plugin-line-numbers.js';
 
+import { refractor } from 'refractor';
+// 导入常见语言
+import cpp from 'refractor/lang/cpp.js';
+import python from 'refractor/lang/python.js';
+import javascript from 'refractor/lang/javascript.js';
+import java from 'refractor/lang/java.js';
+import html from 'refractor/lang/markup.js';
+import css from 'refractor/lang/css.js';
+import json from 'refractor/lang/json.js';
+import bash from 'refractor/lang/bash.js';
+import php from 'refractor/lang/php.js';
+import ruby from 'refractor/lang/ruby.js';
+import sql from 'refractor/lang/sql.js';
+import yaml from 'refractor/lang/yaml.js';
+import markdown from 'refractor/lang/markdown.js';
+import typescript from 'refractor/lang/typescript.js';
+import markup from 'refractor/lang/markup.js';
+
+// 注册 markup 语言
+refractor.register(markup);
+// 注册这些语言
+refractor.register(cpp);
+refractor.register(python);
+refractor.register(javascript);
+refractor.register(java);
+refractor.register(html);
+refractor.register(css);
+refractor.register(json);
+refractor.register(bash);
+refractor.register(php);
+refractor.register(ruby);
+refractor.register(sql);
+refractor.register(yaml);
+refractor.register(markdown);
+refractor.register(typescript);
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -110,6 +146,7 @@ app.get('/post/:title', (req, res) => {
       .use(rehypePrism)
       .use(rehypePluginLineNumbers) // 使用自定义插件添加行号
       .use(rehypeStringify)
+      .use(remarkParse)
       .process(content)
       .then((file) => {
         res.render('post', {
@@ -150,6 +187,8 @@ app.get('/', (req, res) => {
           filename: path.parse(filename).name, // 获取不带扩展名的文件名
           title: data.title || '无标题',
           summary: data.summary || '暂无摘要',
+          author: data.author || '作者未署名',
+          tag: data.tag || '',
         };
 
         // 检查是否为 personal.md,若是则保存

@@ -97,7 +97,7 @@
 
     <!-- 顶部背景图片区域 -->
     <div class="header">
-        <h1>欢迎来到博客平台</h1>
+        <h1>欢迎来到曲奇丶宙斯の小屋</h1>
     </div>
 
     <!-- 下方内容区域 -->
@@ -109,7 +109,10 @@
                     <a href="/post/<%= encodeURIComponent(article.filename) %>">
                         <h3 class="article-title"><%= article.title %></h3>
                     </a>
+                    <p class="article-author"><%= article.author %></p>
                     <p class="article-summary"><%= article.summary %></p>
+                    <p class="article-tag"><%= article.tag %></p>
+                    
                 </li>
             <% }); %>
         </ul>
