@@ -8,45 +8,148 @@
     <!-- 引入 Prism.js 样式 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism-tomorrow.css">
     <style>
-        .post-content img {
-            max-width: 80%;
-            height: auto;
-            display: block;
-            margin: 20px auto;
-        }   
         body {
+            .post-content img {
+                max-width: 80%;
+                height: auto;
+                display: block;
+                margin: 20px auto;
+            }
             font-family: Arial, sans-serif;
-            text-align: center; /* 将所有内容居中 */
             margin: 0;
             padding: 0;
-            /* 添加背景图片 */
-            background-image: url('/images/background.jpg'); /* 替换为您的背景图片路径 */
+            background-image: url('/images/background.jpg');
             background-size: cover;
             background-position: center center;
             background-repeat: no-repeat;
             background-attachment: fixed;
         }
+        html {
+            scroll-behavior: smooth;
+        }
         .container {
             max-width: 800px;
-            margin: 40px auto; /* 增加顶部和底部间距 */
-            text-align: left; /* 保持内容的左对齐以提高可读性 */
-            background-color: rgba(255, 255, 255, 0.9); /* 半透明白色背景 */
+            margin: 40px auto;
+            background-color: rgba(255, 255, 255, 0.9);
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* 添加阴影 */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
-        /* 其他样式保持不变 */
-        /* 代码块样式 */
-        /* ... */
+        .sidebar {
+            position: fixed;
+            top: 60px;
+            left: 20px;
+            width: 200px;
+            max-height: calc(100% - 80px);
+            overflow-y: auto;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .content {
+            margin-left: 0; /* 移除左边的间距 */
+            padding-left: 0; /* 如果有padding,移除它 */
+        }
+        .toc {
+            list-style: none;
+            padding: 0;
+        }
+        .toc li {
+            margin-bottom: 5px;
+        }
+        .toc a {
+            text-decoration: none;
+            color: #3498db;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #3498db;
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .back-to-top:hover {
+            background-color: #2980b9;
+        }
+        a {
+            text-decoration: none;
+            color: #3498db;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        @media screen and (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .content {
+                margin-left: 0;
+            }
+        }
+        pre {
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        pre code {
+            display: block;
+            counter-reset: line-number;
+        }
+        pre code div {
+            position: relative;
+            padding-left: 30px;
+        }
+        pre code div::before {
+            content: counter(line-number);
+            counter-increment: line-number;
+            position: absolute;
+            left: 0;
+            width: 20px;
+            text-align: right;
+            color: #888;
+        }
+        /* 缩进不同标题层级 */
+        .toc-level-1 { margin-left: 0; }
+        .toc-level-2 { margin-left: 15px; }
+        .toc-level-3 { margin-left: 30px; }
+        .toc-level-4 { margin-left: 45px; }
+        .toc-level-5 { margin-left: 60px; }
+        .toc-level-6 { margin-left: 75px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1><%= title %></h1>
-        <div class="post-content">
-            <%- content %>
-        </div>
+    <div class="sidebar">
+        <h3>目录</h3>
+        <ul class="toc">
+            <% headings.forEach(function(heading) { %>
+                <li class="toc-level-<%= heading.depth %>">
+                    <a href="#<%= heading.text.replace(/\s+/g, '-').toLowerCase() %>"><%= heading.text %></a>
+                </li>
+            <% }); %>
+        </ul>
         <p><a href="/">返回首页</a></p>
     </div>
+    <div class="container">
+        <div class="content">
+            <h1><%= title %></h1>
+            <div class="post-content">
+                <%- content %>
+            </div>
+        </div>
+    </div>
+    <a href="#" class="back-to-top">返回顶部</a>
 </body>
 </html>

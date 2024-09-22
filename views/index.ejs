@@ -6,32 +6,91 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center; /* 将所有内容居中 */
             margin: 0;
             padding: 0;
-            /* 添加背景图片 */
-            background-image: url('/images/background.jpg'); /* 替换为您的背景图片路径 */
+            /* 设置全局背景图片 */
+            background-image: url('/images/background.jpg'); /* 替换为您全局背景图片的路径 */
             background-size: cover;
             background-position: center center;
             background-repeat: no-repeat;
             background-attachment: fixed;
         }
-        .container {
-            max-width: 800px;
-            margin: 40px auto; /* 增加顶部和底部间距 */
-            text-align: left;
-            background-color: rgba(255, 255, 255, 0.9); /* 半透明白色背景 */
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+        /* 顶部背景图片区域 */
+        .header {
+            background-image: url('/images/your-header-background.jpg'); /* 替换为顶部背景图片路径 */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 400px; /* 调整高度 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            color: white;
+            text-align: center;
         }
-        /* 其他样式保持不变 */
-        /* ... */
+
+        .header h1 {
+            font-size: 48px;
+            font-weight: bold;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7); /* 给标题加阴影效果 */
+        }
+
+        /* 内容区域 */
+        .container {
+            max-width: 900px;
+            margin: -100px auto 0 auto; /* 调整位置,稍微压到背景图片上 */
+            background-color: rgba(255, 255, 255, 0.9); /* 半透明白色背景 */
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+            text-align: left;
+        }
+
+        /* 副标题 */
+        h2 {
+            text-align: center;
+            margin-top: 0; /* 去掉多余的顶部间距 */
+        }
+
+        .article-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .article-list li {
+            margin-bottom: 20px;
+        }
+
+        .article-title {
+            font-size: 24px;
+        }
+
+        .article-summary {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .article-list a {
+            text-decoration: none;
+            color: #333;
+        }
+
+        .article-list a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
+
+    <!-- 顶部背景图片区域 -->
+    <div class="header">
+        <h1>欢迎来到曲奇丶宙斯の小屋</h1>
+    </div>
+
+    <!-- 下方内容区域 -->
     <div class="container">
-        <h1>欢迎来到博客平台</h1>
         <h2>文章列表</h2>
         <ul class="article-list">
             <% articles.forEach(function(article) { %>
@@ -44,5 +103,6 @@
             <% }); %>
         </ul>
     </div>
+
 </body>
 </html>

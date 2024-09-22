@@ -17,6 +17,7 @@ import rehypeKatex from 'rehype-katex';
 import rehypePrism from 'rehype-prism-plus';
 import rehypeStringify from 'rehype-stringify';
 import matter from 'gray-matter';
+import { visit } from 'unist-util-visit';
 
 // 导入自定义插件
 import rehypePluginLineNumbers from './rehype-plugin-line-numbers.js';
@@ -39,9 +40,6 @@ app.use(express.static('public'));
 
 // 解析 POST 请求中的表单数据
 app.use(express.urlencoded({ extended: false }));
-
-// 背景图片
-app.use(express.static('public'));
 
 // 检查并创建 uploads 和 posts 文件夹
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -85,23 +83,39 @@ app.get('/post/:title', (req, res) => {
 
     const { content, data: frontmatter } = matter(data);
 
+    let headings = [];
+
     unified()
       .use(remarkParse)
       .use(remarkGfm)
       .use(remarkMath)
+      // 收集标题信息
+      .use(() => (tree) => {
+        visit(tree, 'heading', (node) => {
+          const text = node.children
+            .filter((child) => child.type === 'text' || child.type === 'inlineCode')
+            .map((child) => child.value)
+            .join('');
+          headings.push({
+            depth: node.depth,
+            text: text,
+          });
+        });
+      })
       .use(remarkRehype, { allowDangerousHtml: true })
       .use(rehypeRaw)
       .use(rehypeSlug)
       .use(rehypeAutolinkHeadings)
       .use(rehypeKatex)
       .use(rehypePrism)
-      .use(rehypePluginLineNumbers) // 使用自定义插件
+      .use(rehypePluginLineNumbers) // 使用自定义插件添加行号
       .use(rehypeStringify)
       .process(content)
       .then((file) => {
         res.render('post', {
           title: frontmatter.title || decodedTitle,
           content: String(file),
+          headings: headings, // 将标题信息传递给模板
         });
       })
       .catch((error) => {
