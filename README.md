@@ -6,6 +6,8 @@
 
 # 版本列表
 
+* 请在 [站内页面](http://blog.godcraft.net:3000/post/versions) 下载，否则将导致网站崩溃，暂时尚未知原因
+
 ## [blog.zip](http://blog.godcraft.net:3000/downloads/blog.zip)
 
 ## [blog2.0.rar](http://blog.godcraft.net:3000/downloads/blog2.0.rar)
